@@ -2,29 +2,30 @@ package main
 
 import (
 	"encoding/hex"
-	"fmt"
 	"log"
 	"math"
 )
 
-type cipherScore struct {
-	key   string
-	msg   string
-	freq  map[string]int
-	score int
+// CipherScore struct define decoded message score.
+type CipherScore struct {
+	key    string
+	cipher string
+	msg    string
+	freq   map[string]int
+	score  int
 }
 
 // SingleXor finds the key, decrypts the message, does a letter freq calculation on msg,
 // returns highest scoring.
-func SingleXor() {
-	cipher := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
-	ciph := make([]cipherScore, 256)
+func SingleXor(cipher string) CipherScore {
+	ciph := make([]CipherScore, 256)
 	cicoded, err := hex.DecodeString(cipher)
 	if err != nil {
 		log.Fatal("Error")
 	}
 	for i := 0; i < math.MaxUint8; i++ {
 		ciph[i].key, ciph[i].msg = decrypt(cicoded, byte(i))
+		ciph[i].cipher = cipher
 		ciph[i].freq = freqChar([]byte(ciph[i].msg))
 		ciph[i].score = charFreqScore(ciph[i])
 	}
@@ -35,8 +36,8 @@ func SingleXor() {
 			max = v
 		}
 	}
-	fmt.Println("Key: "+max.key+". \n Decoded message: "+max.msg+". \n Freq: ", max.score)
-
+	// fmt.Println("Key: "+max.key+". \n Decoded message: "+max.msg+". \n Freq: ", max.score)
+	return max
 }
 
 // This function decrypts the cipher message. Returns key and message.
@@ -58,7 +59,7 @@ func freqChar(decoded []byte) (freq map[string]int) {
 	return freq
 }
 
-func charFreqScore(c cipherScore) (score int) {
+func charFreqScore(c CipherScore) (score int) {
 	score = c.freq["e"] + c.freq["t"] + c.freq["o"] + c.freq["a"] + c.freq["i"] + c.freq["n"]
 	return score
 }
