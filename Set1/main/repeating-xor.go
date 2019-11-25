@@ -14,9 +14,9 @@ func RepeatingXor(message, key string) {
 	mult := len(msgBytes) / len(keyBytes)
 	pad := len(msgBytes) % len(keyBytes)
 
-	for i := 0; i < mult; i++ {
-		buf.Write(keyBytes)
-	}
+	keyBytes = bytes.Repeat(keyBytes, mult)
+	buf.Write(keyBytes)
+
 	if pad > 0 {
 		for i := 0; i < pad; i++ {
 			buf.WriteByte(keyBytes[i])

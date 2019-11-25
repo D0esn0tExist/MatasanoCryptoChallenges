@@ -1,12 +1,14 @@
 package main
 
-import "io/ioutil"
+import (
+	"encoding/hex"
+	"fmt"
+	"io/ioutil"
+	"strings"
+)
 
-import "fmt"
-
-import "strings"
-
-func loadFile(path string) []byte {
+// LoadFile returns []byte content of a file
+func LoadFile(path string) []byte {
 	ciphFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -17,13 +19,17 @@ func loadFile(path string) []byte {
 
 // Detect function loads and goes through a txt file to find an XOR'ed string
 func Detect() {
-	ciphFile := loadFile("data.txt")
+	ciphFile := LoadFile("data.txt")
 	ciphStrings := strings.Split(string(ciphFile), "\n")
 
 	stringScores := make([]CipherScore, len(ciphStrings))
 
 	for i, s := range ciphStrings {
-		stringScores[i] = SingleXor(s)
+		c, err := hex.DecodeString(s)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		stringScores[i] = SingleXor(c)
 	}
 
 	max := stringScores[0]
