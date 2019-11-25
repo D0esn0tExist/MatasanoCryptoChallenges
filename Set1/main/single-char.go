@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"sort"
 	"strings"
 )
 
@@ -32,12 +33,9 @@ func Detect() {
 		stringScores[i] = SingleXor(c)
 	}
 
-	max := stringScores[0]
-	for _, v := range stringScores {
-		if v.score > max.score {
-			max = v
-		}
-	}
-	fmt.Println("Cipher: "+max.cipher+". \n Decoded message: "+max.msg+"\n Freq: ", max.score)
+	sort.Slice(stringScores, func(i, j int) bool {
+		return stringScores[i].score > stringScores[j].score
+	})
+	fmt.Println("Cipher: "+stringScores[0].cipher+". \n Decoded message: "+stringScores[0].msg+"\n Freq: ", stringScores[0].score)
 
 }
