@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"math"
 	"sort"
 )
@@ -21,7 +22,7 @@ func SingleXor(cicoded []byte) CipherScore {
 
 	for i := 0; i < math.MaxUint8; i++ {
 		ciph[i].key, ciph[i].msg = decrypt(cicoded, byte(i))
-		ciph[i].cipher = string(cicoded)
+		ciph[i].cipher = hex.EncodeToString(cicoded)
 		ciph[i].freq = freqChar([]byte(ciph[i].msg))
 		ciph[i].score = charFreqScore(ciph[i])
 	}
@@ -29,7 +30,6 @@ func SingleXor(cicoded []byte) CipherScore {
 	sort.Slice(ciph, func(i, j int) bool {
 		return ciph[i].score > ciph[j].score
 	})
-	// fmt.Println("Key: "+max.key+". \n Decoded message: "+max.msg+". \n Freq: ", max.score)
 	return ciph[0]
 }
 
@@ -54,6 +54,7 @@ func freqChar(decoded []byte) (freq map[string]int) {
 
 func charFreqScore(c CipherScore) (score int) {
 	score = c.freq["e"] + c.freq["t"] + c.freq["o"] + c.freq["a"] + c.freq["i"] + c.freq["n"] +
-		c.freq["s"] + c.freq["h"] + c.freq["r"] + c.freq["d"] + c.freq["l"] + c.freq["u"]
+		c.freq["s"] + c.freq["h"]
+
 	return score
 }

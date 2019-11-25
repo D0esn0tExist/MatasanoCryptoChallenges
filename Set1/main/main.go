@@ -21,7 +21,8 @@ func main() {
 	// //Third challenge, Set 1.
 	fmt.Println("\n------Single-byte XOR cipher------")
 	cicoded, _ := hex.DecodeString("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
-	SingleXor(cicoded)
+	c := SingleXor(cicoded)
+	fmt.Println("Key: "+c.key+". \n Decoded message: "+c.msg+". \n Freq: ", c.score)
 
 	// Fourth challenge, Set 1.
 	fmt.Println("\n------Detect single-character XOR------")
