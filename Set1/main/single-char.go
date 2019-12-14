@@ -19,7 +19,7 @@ func LoadFile(path string) []byte {
 }
 
 // Detect function loads and goes through a txt file to find an XOR'ed string
-func Detect() {
+func Detect() CipherScore {
 	ciphFile := LoadFile("data.txt")
 	ciphStrings := strings.Split(string(ciphFile), "\n")
 
@@ -36,6 +36,6 @@ func Detect() {
 	sort.Slice(stringScores, func(i, j int) bool {
 		return stringScores[i].score > stringScores[j].score
 	})
-	fmt.Println("Cipher: "+stringScores[0].cipher+". \n Decoded message: "+stringScores[0].msg+"\n Freq: ", stringScores[0].score)
+	return stringScores[0]
 
 }
