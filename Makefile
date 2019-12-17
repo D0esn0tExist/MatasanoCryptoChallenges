@@ -7,8 +7,8 @@ setup:
 
 ## build: build the app.
 test:
-	@echo "Testing..."
-	go test -v
+	# @echo "Testing..."
+	# go test -v
 
 ## help: prints this help message
 help:

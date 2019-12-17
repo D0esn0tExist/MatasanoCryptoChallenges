@@ -1,4 +1,4 @@
-package main
+package set1
 
 import (
 	"crypto/aes"
@@ -48,11 +48,9 @@ func (c *Ciph) Aesdecrypt() string {
 		block = paddedCipher[idx:lim]
 		msg := DecryptAes(block, c.cipherKey)
 		msg = append(msg, msg...)
-		fmt.Printf("Decoded msg: %d", len(msg))
 	}
 	if c.isPadded {
 		decoded = decoded[:len(decoded)-c.padLen]
-		fmt.Printf("Decoded length: %d", len(decoded))
 	}
 	return string(decoded)
 }
