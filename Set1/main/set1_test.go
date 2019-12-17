@@ -49,3 +49,21 @@ func TestBreakRepeat(t *testing.T) {
 }
 
 // TODO: Write benchmarks for the slower functions. :)
+
+// func TestAesdecrypt(t *testing.T) {
+// 	c := Ciph{}
+// 	decoded := c.Aesdecrypt()
+// 	if decoded[:10] != "In ecstasy" {
+// 		t.Errorf("Aesdecrypt() = %s. Want: In ecstasy", decoded[:10])
+// 	}
+// }
+
+func TestDetectAes(t *testing.T) {
+	found := DetectAes("detect_aes.txt")
+	if len(found) != 1 {
+		t.Errorf("Excepting 1 aes cipher detected.")
+	}
+	if found[0][:10] != "d880619740" {
+		t.Errorf("DetectAes() = %s. Want: ds", found[0][:10])
+	}
+}
