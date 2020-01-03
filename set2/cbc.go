@@ -2,8 +2,6 @@ package set2
 
 import (
 	"crypto/aes"
-	"encoding/base64"
-	"fmt"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
@@ -15,14 +13,9 @@ type CbcProp struct {
 }
 
 // Cbc implements AES in ECB mode.
-func (c CbcProp) Cbc(path string) ([]byte, error) {
-	cbcCiph := set1.LoadFile(path)
-	cbcBytes := make([]byte, len(cbcCiph))
-	base64.RawStdEncoding.Decode(cbcBytes, cbcCiph)
-	fmt.Println(len(cbcBytes))
+func (c CbcProp) Cbc(cbcBytes []byte) ([]byte, error) {
 
 	paddedBytes := PKCSPadding(cbcBytes, aes.BlockSize)
-	fmt.Println(len(paddedBytes))
 
 	cipher := make([]byte, aes.BlockSize)
 	finalCipher := make([]byte, len(paddedBytes))
