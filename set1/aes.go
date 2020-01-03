@@ -65,3 +65,14 @@ func DecryptAes(cipher, key []byte) []byte {
 	c.Decrypt(msgBytes, cipher)
 	return msgBytes
 }
+
+// EncryptAes function encrypts a block in ECB fashion
+func EncryptAes(message, key []byte) []byte {
+	ciphBytes := make([]byte, len(key))
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	c.Encrypt(ciphBytes, message)
+	return ciphBytes
+}
