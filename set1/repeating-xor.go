@@ -2,6 +2,7 @@ package set1
 
 import (
 	"bytes"
+	"encoding/hex"
 )
 
 // RepeatingXor function encodes a string with key using repating XOR.
@@ -23,5 +24,5 @@ func RepeatingXor(message, key string) string {
 	}
 
 	cipher := Xor(msgBytes, buf.Bytes())
-	return cipher
+	return hex.EncodeToString(cipher)
 }
