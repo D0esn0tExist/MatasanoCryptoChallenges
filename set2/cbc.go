@@ -3,6 +3,7 @@ package set2
 import (
 	"crypto/aes"
 	"encoding/base64"
+	"fmt"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
@@ -18,7 +19,10 @@ func (c CbcProp) Cbc(path string) ([]byte, error) {
 	cbcCiph := set1.LoadFile(path)
 	cbcBytes := make([]byte, len(cbcCiph))
 	base64.RawStdEncoding.Decode(cbcBytes, cbcCiph)
+	fmt.Println(len(cbcBytes))
+
 	paddedBytes := PKCSPadding(cbcBytes, aes.BlockSize)
+	fmt.Println(len(paddedBytes))
 
 	cipher := make([]byte, aes.BlockSize)
 	finalCipher := make([]byte, len(paddedBytes))
