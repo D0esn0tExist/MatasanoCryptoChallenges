@@ -37,3 +37,7 @@ func TestCbc(t *testing.T) {
 	outText := base64.StdEncoding.EncodeToString(out)
 	fmt.Println(outText)
 }
+
+func TestEnryptionOracle(t *testing.T) {
+	EncryptionOracle("Hello World!")
+}
