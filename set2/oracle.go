@@ -29,7 +29,8 @@ func EncryptionOracle(input string) string {
 	encKey := KeyGen(16)
 	// Do AES ECB
 	if rand.Intn(2) == 1 {
-		cipher := set1.EncryptAes([]byte(theInput), []byte(encKey))
+		c := set1.Ciph{CipherText: nil, CipherKey: []byte(encKey), Message: []byte(theInput)}
+		cipher := c.Aesencrypt()
 		return string(cipher)
 	}
 
@@ -40,7 +41,7 @@ func EncryptionOracle(input string) string {
 		panic(err)
 	}
 	cbc := CbcProp{IV: iv, key: []byte(encKey)}
-	cipher, err := cbc.Cbc(PKCSPadding([]byte(theInput), 16))
+	cipher, err := cbc.Cbc(set1.PKCSPadding([]byte(theInput), 16))
 	if err != nil {
 		fmt.Println("Error on cbc", err)
 		panic(err)
