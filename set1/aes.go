@@ -32,7 +32,6 @@ func (c *Ciph) Aesencrypt() []byte {
 		block = paddedInput[idx:lim]
 		ciph.Encrypt(cipher[idx:lim], block)
 	}
-	fmt.Println("Cip: ", len(paddedInput))
 
 	return cipher
 }

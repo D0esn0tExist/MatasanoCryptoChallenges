@@ -1,6 +1,7 @@
 package set2
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"testing"
@@ -23,4 +24,26 @@ func TestCbc(t *testing.T) {
 
 func TestEnryptionOracle(t *testing.T) {
 	EncryptionOracle("Hello World!")
+}
+
+func TestByteAtime(t *testing.T) {
+	b := bytes.Buffer{}
+	cipher, _ := base64.RawStdEncoding.DecodeString(AES128ECBSuffixoracle(b))
+	cipherLen := len(cipher)
+	initLen := cipherLen
+	fmt.Println("Initlen: ", initLen)
+
+	for cipherLen == initLen {
+		b.WriteString("A")
+		cipher, _ := base64.RawStdEncoding.DecodeString(AES128ECBSuffixoracle(b))
+		cipherLen = len(cipher)
+		fmt.Printf("With %s, len: %d\n", string(b.Bytes()), cipherLen)
+	}
+	blocksize := cipherLen - initLen
+	inputSize := b.Len()
+	fmt.Printf("Blocksize: %d \n InputSize: %d", blocksize, inputSize)
+
+	unknown := FindUnknownString(blocksize)
+	fmt.Println("Pad: ", unknown)
+	t.Fail()
 }
