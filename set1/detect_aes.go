@@ -15,7 +15,7 @@ func DetectAes(path string) []string {
 	found := make([]string, 0)
 	for i := 0; i < len(aesStrings); i++ {
 		byteCipher, _ := hex.DecodeString(aesStrings[i])
-		if detectAesCipher(byteCipher) == true {
+		if DetectAesCipher(byteCipher) == true {
 			fmt.Printf("Found: %s\n", aesStrings[i])
 			found = append(found, aesStrings[i])
 		}
@@ -23,7 +23,8 @@ func DetectAes(path string) []string {
 	return found
 }
 
-func detectAesCipher(cipher []byte) bool {
+// DetectAesCipher checks if a byte array is an ECB encrypted cipher
+func DetectAesCipher(cipher []byte) bool {
 	if len(cipher)%aes.BlockSize != 0 {
 		fmt.Println("nOT A vALID ciPHER!\n Length not multiple of blocksize.")
 		return false

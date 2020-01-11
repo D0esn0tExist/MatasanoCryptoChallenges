@@ -50,13 +50,13 @@ func TestBreakRepeat(t *testing.T) {
 
 // TODO: Write benchmarks for the slower functions. :)
 
-// func TestAesdecrypt(t *testing.T) {
-// 	c := Ciph{}
-// 	decoded := c.Aesdecrypt()
-// 	if decoded[:10] != "In ecstasy" {
-// 		t.Errorf("Aesdecrypt() = %s. Want: In ecstasy", decoded[:10])
-// 	}
-// }
+func TestAesdecrypt(t *testing.T) {
+	c := Ciph{}
+	decoded := c.Aesdecrypt()
+	if decoded[:10] != "I'm back a" {
+		t.Errorf("Aesdecrypt() = %s. Want: In ecstasy", decoded[:10])
+	}
+}
 
 func TestDetectAes(t *testing.T) {
 	found := DetectAes("detect_aes.txt")
@@ -65,5 +65,21 @@ func TestDetectAes(t *testing.T) {
 	}
 	if found[0][:10] != "d880619740" {
 		t.Errorf("DetectAes() = %s. Want: ds", found[0][:10])
+	}
+}
+
+func TestPKCSPadding(t *testing.T) {
+	byteText := []byte("YELLOW SUBMARINE")
+	paddedString := PKCSPadding(byteText, 20)
+	if string(paddedString) != "YELLOW SUBMARINE\x04\x04\x04\x04" {
+		t.Errorf("PKCSPadding(). Want: %s. Expected: YELLOW SUBMARINE\x04\x04\x04\x04", string(paddedString))
+	}
+}
+
+func TestPKCSUnpadding(t *testing.T) {
+	paddedBytes := []byte("YELLOW SUBMARINE\x04\x04\x04\x04")
+	unpaddedText := string(PKCSUnpadding(paddedBytes))
+	if string(unpaddedText) != "YELLOW SUBMARINE" {
+		t.Errorf("PKCSUnpadding(). Want: %s. Expected: YELLOW SUBMARINE", unpaddedText)
 	}
 }

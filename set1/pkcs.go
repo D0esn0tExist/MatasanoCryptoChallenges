@@ -1,15 +1,19 @@
-package set2
+package set1
 
 // PKCSPadding accounts for irregularly-sized messages is by padding, creating a plaintext that is an even multiple of the blocksiz
 func PKCSPadding(input []byte, toLen int) []byte {
-	pad := toLen - len(input)%toLen
-	paddedText := make([]byte, len(input)+pad)
-	if pad > 0 {
-		n := copy(paddedText, input)
-		for i := 0; i < pad; i++ {
-			paddedText[n+i] = byte(pad)
-		}
+	diff := len(input) % toLen
+	if diff == 0 {
+		return input
 	}
+	pad := toLen - diff
+	paddedText := make([]byte, len(input)+pad)
+
+	n := copy(paddedText, input)
+	for i := 0; i < pad; i++ {
+		paddedText[n+i] = byte(pad)
+	}
+
 	return paddedText
 }
 

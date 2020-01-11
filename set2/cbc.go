@@ -2,6 +2,7 @@ package set2
 
 import (
 	"crypto/aes"
+	"fmt"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
@@ -14,21 +15,21 @@ type CbcProp struct {
 
 // Cbc implements AES in ECB mode.
 func (c CbcProp) Cbc(cbcBytes []byte) ([]byte, error) {
+	ciph, err := aes.NewCipher(c.key)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	paddedBytes := set1.PKCSPadding(cbcBytes, aes.BlockSize)
 
-	paddedBytes := PKCSPadding(cbcBytes, aes.BlockSize)
-
-	cipher := make([]byte, aes.BlockSize)
-	finalCipher := make([]byte, len(paddedBytes))
+	cipher := make([]byte, len(paddedBytes))
 	ciphBlock := c.IV
 
 	for idx := 0; idx < len(paddedBytes); idx += aes.BlockSize {
 		lim := idx + aes.BlockSize
 
 		ciphBlock = set1.Xor(paddedBytes[idx:lim], ciphBlock)
-		cipher = set1.EncryptAes(ciphBlock, c.key)
-
-		copy(finalCipher[idx:], cipher)
-		finalCipher = append(finalCipher, cipher...)
+		ciph.Encrypt(cipher[idx:lim], ciphBlock)
 	}
+	finalCipher := set1.PKCSUnpadding(cipher)
 	return finalCipher, nil
 }

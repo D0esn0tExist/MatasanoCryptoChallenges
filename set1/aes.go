@@ -8,71 +8,63 @@ import (
 
 // Ciph struct holds cipher properties
 type Ciph struct {
-	cipherText []byte
-	isPadded   bool
-	padLen     int
-	cipherKey  []byte
-	message    []byte
+	CipherText []byte
+	CipherKey  []byte
+	Message    []byte
+}
+
+// Aesencrypt function handles enc and decryption of a plaintext in ECB mode
+func (c *Ciph) Aesencrypt() []byte {
+	ciph, err := aes.NewCipher(c.CipherKey)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	paddedInput := PKCSPadding(c.Message, aes.BlockSize)
+
+	block := make([]byte, aes.BlockSize)
+	cipher := make([]byte, len(paddedInput))
+
+	for idx := 0; idx < len(paddedInput); idx += aes.BlockSize {
+		lim := idx + aes.BlockSize
+		if lim > len(paddedInput) {
+			lim = len(paddedInput)
+		}
+		block = paddedInput[idx:lim]
+		ciph.Encrypt(cipher[idx:lim], block)
+	}
+
+	return cipher
 }
 
 // Aesdecrypt function decrypts a file encrypted with AES in ECB mode.
 func (c *Ciph) Aesdecrypt() string {
-	c.cipherKey = []byte("YELLOW SUBMARINE")
+	c.CipherKey = []byte("YELLOW SUBMARINE")
 
 	loaded := LoadFile("aes.txt")
-	c.cipherText = make([]byte, len(loaded))
-	base64.RawStdEncoding.Decode(c.cipherText, loaded)
+	c.CipherText = make([]byte, len(loaded))
+	base64.RawStdEncoding.Decode(c.CipherText, loaded)
 
-	pad := len(c.cipherKey) - len(c.cipherText)%len(c.cipherKey)
-	paddedCipher := make([]byte, len(c.cipherText)+pad)
-
-	if pad > 0 {
-		c.isPadded = true
-		c.padLen = pad
-		n := copy(paddedCipher, c.cipherText)
-		for i := 0; i < pad; i++ {
-			paddedCipher[n+i] = byte(pad)
-		}
+	paddedCipher := PKCSPadding(c.CipherText, 16)
+	cipher, err := aes.NewCipher(c.CipherKey)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
 	msgSize := len(paddedCipher)
+	print(msgSize)
 
-	block := make([]byte, len(c.cipherKey))
+	block := make([]byte, len(c.CipherKey))
 	decoded := make([]byte, msgSize)
 
-	for idx := 0; idx < msgSize; idx += len(c.cipherKey) {
-		lim := idx + len(c.cipherKey)
+	for idx := 0; idx < msgSize; idx += len(c.CipherKey) {
+		lim := idx + len(c.CipherKey)
 		if lim > msgSize {
 			lim = msgSize
 		}
 		block = paddedCipher[idx:lim]
-		msg := DecryptAes(block, c.cipherKey)
-		msg = append(msg, msg...)
+		cipher.Decrypt(decoded[idx:lim], block)
 	}
-	if c.isPadded {
-		decoded = decoded[:len(decoded)-c.padLen]
-	}
+	decoded = PKCSUnpadding(decoded)
+
 	return string(decoded)
-}
-
-// DecryptAes function decrypts a block in ECB fashion
-func DecryptAes(cipher, key []byte) []byte {
-	msgBytes := make([]byte, len(key))
-	c, err := aes.NewCipher(key)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	c.Decrypt(msgBytes, cipher)
-	return msgBytes
-}
-
-// EncryptAes function encrypts a block in ECB fashion
-func EncryptAes(message, key []byte) []byte {
-	ciphBytes := make([]byte, len(key))
-	c, err := aes.NewCipher(key)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	c.Encrypt(ciphBytes, message)
-	return ciphBytes
 }
