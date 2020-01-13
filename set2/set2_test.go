@@ -45,5 +45,8 @@ func TestByteAtime(t *testing.T) {
 
 	unknown := FindUnknownString(blocksize)
 	fmt.Println("Pad: ", unknown)
-	t.Fail()
+}
+
+func TestParser(t *testing.T) {
+	Parser("foo=bar&baz=qux&zap=zazzle")
 }
