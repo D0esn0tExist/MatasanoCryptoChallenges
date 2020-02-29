@@ -2,7 +2,6 @@ package set1
 
 import (
 	"crypto/aes"
-	"encoding/base64"
 	"fmt"
 )
 
@@ -38,12 +37,6 @@ func (c *Ciph) Aesencrypt() []byte {
 
 // Aesdecrypt function decrypts a file encrypted with AES in ECB mode.
 func (c *Ciph) Aesdecrypt() string {
-	c.CipherKey = []byte("YELLOW SUBMARINE")
-
-	loaded := LoadFile("aes.txt")
-	c.CipherText = make([]byte, len(loaded))
-	base64.RawStdEncoding.Decode(c.CipherText, loaded)
-
 	paddedCipher := PKCSPadding(c.CipherText, 16)
 	cipher, err := aes.NewCipher(c.CipherKey)
 	if err != nil {
@@ -64,7 +57,7 @@ func (c *Ciph) Aesdecrypt() string {
 		block = paddedCipher[idx:lim]
 		cipher.Decrypt(decoded[idx:lim], block)
 	}
-	decoded = PKCSUnpadding(decoded)
+	// decoded = PKCSUnpadding(decoded)
 
 	return string(decoded)
 }

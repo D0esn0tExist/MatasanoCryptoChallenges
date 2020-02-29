@@ -47,6 +47,31 @@ func TestByteAtime(t *testing.T) {
 	fmt.Println("Pad: ", unknown)
 }
 
-func TestParser(t *testing.T) {
-	Parser("foo=bar&baz=qux&zap=zazzle")
+func TestPriv(t *testing.T) {
+	// Generate random key.
+	randKey := KeyGen(16)
+	c := set1.Ciph{}
+	c.CipherKey = []byte(randKey)
+
+	cookie := ProfileFor("foo@bar.com")
+	if cookie != "email=foo@bar.com&uid=10&role=user" {
+		t.Errorf("Excepted email=foo@bar.com&uid=10&role=user. Found %s", cookie)
+	}
+
+	// Encrypt cookie.
+	cookieEncrypter := func(email string) []byte {
+		cookie := ProfileFor(email)
+		c.Message = []byte(cookie)
+		c.CipherText = c.Aesencrypt()
+		return c.CipherText
+	}
+
+	synthCookie := PrivEsc(cookieEncrypter)
+	c.CipherText = synthCookie
+	newCookie := c.Aesdecrypt()
+	profile := Parser(newCookie)
+	if profile["role"] != "admin" {
+		t.Errorf("Excepted admin. Found %s", profile["role"])
+	}
+
 }

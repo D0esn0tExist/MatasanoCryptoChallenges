@@ -1,6 +1,7 @@
 package set1
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"testing"
 )
@@ -51,7 +52,13 @@ func TestBreakRepeat(t *testing.T) {
 // TODO: Write benchmarks for the slower functions. :)
 
 func TestAesdecrypt(t *testing.T) {
+	loaded := LoadFile("aes.txt")
+
 	c := Ciph{}
+	c.CipherKey = []byte("YELLOW SUBMARINE")
+	c.CipherText = make([]byte, len(loaded))
+	base64.RawStdEncoding.Decode(c.CipherText, loaded)
+
 	decoded := c.Aesdecrypt()
 	if decoded[:10] != "I'm back a" {
 		t.Errorf("Aesdecrypt() = %s. Want: In ecstasy", decoded[:10])
