@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
@@ -12,6 +14,7 @@ import (
 var encKey string
 
 func init() {
+	rand.Seed(time.Now().UnixNano())
 	encKey = KeyGen(16)
 }
 
@@ -30,11 +33,10 @@ func AES128ECBSuffixoracle(b bytes.Buffer) string {
 
 }
 
-// FindUnknownString function attempts to break byte at a time oracle.
-func FindUnknownString(blockSize int) string {
+// FindUnknownString function attempts to break byte-at-a-time oracle to find the unknown suffix string padded.
+func FindUnknownString(unknownStringSize, blockSize int) string {
 	unknown := []byte{}
-	// TODO: Hardcoded len of suffix pad. Fix this. Find another way to terminate.
-	for i := 0; i < 138; i++ {
+	for i := 0; i < unknownStringSize; i++ {
 		// input text to determine byte of the unknown string padding
 		fix := strings.Repeat("A", blockSize-1-(len(unknown)%blockSize))
 		b := bytes.Buffer{}
@@ -56,7 +58,6 @@ func FindUnknownString(blockSize int) string {
 			loopvar := bytes.Buffer{}
 			loopvar.Write(bruteMsg)
 			cipherText, _ := base64.RawStdEncoding.DecodeString(AES128ECBSuffixoracle(loopvar))
-			fmt.Println(cipherText)
 			if bytes.Equal(check, cipherText[:blockSize]) {
 				unknown = append(unknown, byte(l))
 				break
@@ -65,4 +66,17 @@ func FindUnknownString(blockSize int) string {
 	}
 	return string(unknown)
 
+}
+
+// AES128ECBPrefixoracle function generates a random count of random bytes and prepend this string to AES128ECBSuffixoracle suffix pad.
+func AES128ECBPrefixoracle(input []byte) string {
+	prefix := make([]byte, rand.Intn(10))
+	_, err := rand.Read(prefix)
+	if err != nil {
+		fmt.Println(fmt.Errorf(err.Error()))
+	}
+	b := bytes.Buffer{}
+	b.Write(prefix)
+	b.Write(input)
+	return AES128ECBSuffixoracle(b)
 }

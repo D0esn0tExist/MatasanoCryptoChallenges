@@ -23,7 +23,8 @@ func TestCbc(t *testing.T) {
 }
 
 func TestEnryptionOracle(t *testing.T) {
-	EncryptionOracle("Hello World!")
+	cipher := EncryptionOracle("Hello World!")
+	fmt.Println(cipher)
 }
 
 func TestByteAtime(t *testing.T) {
@@ -41,10 +42,28 @@ func TestByteAtime(t *testing.T) {
 	}
 	blocksize := cipherLen - initLen
 	inputSize := b.Len()
-	fmt.Printf("Blocksize: %d \n InputSize: %d", blocksize, inputSize)
+	// Initial ciphertext length, initlen - (inputsize-1) gives length of the unknown string.
+	unknownStringSize := initLen - (inputSize - 1)
+	/*
+		The FindUnknownString function for now, because it specifically tries to
+		break the AES128ECBSuffixoracle.
+		Modify that function for generic finding padded e.g. suffix etc.
+	*/
+	fmt.Printf("Blocksize: %d \nInputSize: %d\nLength of unknown string: %d\n", blocksize, inputSize, unknownStringSize)
 
-	unknown := FindUnknownString(blocksize)
+	unknown := FindUnknownString(unknownStringSize, blocksize)
 	fmt.Println("Pad: ", unknown)
+}
+
+func TestAES128ECBPrefixoracle(t *testing.T) {
+	for i := 0; i <= 10; i++ {
+		input := []byte("")
+		randomCipher := AES128ECBPrefixoracle(input)
+		fmt.Println("Prefixed and suffixed: ", randomCipher)
+		fmt.Println("Length of cipher: ", len(randomCipher))
+	}
+	// input := []byte("AA")
+
 }
 
 func TestPriv(t *testing.T) {
