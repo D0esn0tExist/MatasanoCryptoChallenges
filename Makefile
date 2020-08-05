@@ -2,13 +2,12 @@ APP=matasano
 
 ## setup: setup go modules.
 setup:
-	@go mod init \
-		&& go mod tidy
+	@go mod tidy
 
 ## build: build the app.
 test:
 	# @echo "Testing..."
-	# go test -v
+	@go test ./... -v
 
 ## help: prints this help message
 help:
