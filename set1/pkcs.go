@@ -21,7 +21,7 @@ func PKCSPadding(input []byte, toLen int) []byte {
 func PKCSUnpadding(input []byte) []byte {
 	lenInput := len(input)
 	padLen := int(input[lenInput-1])
-	if padLen < 0 {
+	if padLen < 0 || lenInput < padLen {
 		return input
 	}
 	return input[:lenInput-padLen]
