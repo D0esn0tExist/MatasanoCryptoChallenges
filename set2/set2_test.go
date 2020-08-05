@@ -10,7 +10,7 @@ import (
 )
 
 func TestCbc(t *testing.T) {
-	cbcCiph := set1.LoadFile("cbcPlain.txt")
+	cbcCiph := set1.LoadFile("cbcCiph.txt")
 	cbcBytes := make([]byte, len(cbcCiph))
 	base64.RawStdEncoding.Decode(cbcBytes, cbcCiph)
 	byteText := []byte("YELLOW SUBMARINE")
@@ -55,15 +55,9 @@ func TestByteAtime(t *testing.T) {
 	fmt.Println("Pad: ", unknown)
 }
 
-func TestAES128ECBPrefixoracle(t *testing.T) {
-	for i := 0; i <= 10; i++ {
-		input := []byte("")
-		randomCipher := AES128ECBPrefixoracle(input)
-		fmt.Println("Prefixed and suffixed: ", randomCipher)
-		fmt.Println("Length of cipher: ", len(randomCipher))
-	}
-	// input := []byte("AA")
-
+func TestBreakPrefixOracle(t *testing.T) {
+	prefixSize := BreakPrefixOracle(16)
+	fmt.Println("Size of prefix: ", prefixSize)
 }
 
 func TestPriv(t *testing.T) {

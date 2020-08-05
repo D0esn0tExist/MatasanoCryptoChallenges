@@ -18,12 +18,11 @@ type Profile map[string]string
 //   zap: 'zazzle'
 // }
 func Parser(cookie string) Profile {
-	fmt.Println("cook:", cookie)
+	fmt.Println("cookie:", cookie)
 	attr := strings.Split(cookie, "&")
 	attrMap := make(map[string]string, len(attr))
 	for i := 0; i < len(attr); i++ {
 		kv := strings.Split(attr[i], "=")
-		fmt.Println(kv)
 		if _, ok := attrMap[kv[0]]; ok {
 			continue
 		}
@@ -66,7 +65,7 @@ func (p *Profile) CookieEncoder() string {
 	assertOrder("role")
 	profileCookie := strings.Join(cookie, "&")
 
-	fmt.Println(profileCookie)
+	fmt.Println("encoded Cookie: ", profileCookie)
 	return profileCookie
 }
 
