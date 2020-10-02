@@ -58,8 +58,8 @@ func BreakSuffixOracleLength(b bytes.Buffer) (blockSize, suffixLen int) {
 	return
 }
 
-// FindUnknownString function attempts to break byte-at-a-time oracle to find the unknown suffix string padded.
-func FindUnknownString(prefix []byte, unknownStringSize, blockSize int) string {
+// FindUnknownSuffixPad function attempts to break byte-at-a-time oracle to find the unknown suffix string padded.
+func FindUnknownSuffixPad(prefix []byte, unknownStringSize, blockSize int) string {
 	unknown := []byte{}
 	for i := 0; i < unknownStringSize+len(prefix); i++ { // TODO: Dirty solution. Fix this.
 		// input text to determine byte of the unknown string padding

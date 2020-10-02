@@ -32,11 +32,11 @@ func TestByteAtime(t *testing.T) {
 	b := bytes.Buffer{}
 	blocksize, unknownStringSize := BreakSuffixOracleLength(b)
 	/*
-		TODO: The FindUnknownString function for now, because it specifically tries to
+		TODO: The FindUnknownSuffixPad function for now, because it specifically tries to
 		break the AES128ECBSuffixoracle.
 		Modify that function for generic finding padded e.g. suffix etc.
 	*/
-	unknown := FindUnknownString(nil, unknownStringSize, blocksize)
+	unknown := FindUnknownSuffixPad(nil, unknownStringSize, blocksize)
 	fmt.Println("Pad: ", unknown)
 }
 
@@ -50,7 +50,7 @@ func TestBreakPrefixOracle(t *testing.T) {
 	b.Write(prefixBytes)
 	blocksize, suffixSize := BreakSuffixOracleLength(b)
 	// find target: suffix pad
-	unknown := FindUnknownString(prefixBytes, suffixSize, blocksize)
+	unknown := FindUnknownSuffixPad(prefixBytes, suffixSize, blocksize)
 	fmt.Println(unknown)
 	if !strings.Contains(unknown, "Rollin' in my 5.0") {
 		t.Errorf("Wrong pad. Pad contains: ")
