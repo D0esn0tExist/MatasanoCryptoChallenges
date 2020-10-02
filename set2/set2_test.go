@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
@@ -29,35 +30,31 @@ func TestEnryptionOracle(t *testing.T) {
 
 func TestByteAtime(t *testing.T) {
 	b := bytes.Buffer{}
-	cipher, _ := base64.RawStdEncoding.DecodeString(AES128ECBSuffixoracle(b))
-	cipherLen := len(cipher)
-	initLen := cipherLen
-	fmt.Println("Initlen: ", initLen)
-
-	for cipherLen == initLen {
-		b.WriteString("A")
-		cipher, _ := base64.RawStdEncoding.DecodeString(AES128ECBSuffixoracle(b))
-		cipherLen = len(cipher)
-		fmt.Printf("With %s, len: %d\n", string(b.Bytes()), cipherLen)
-	}
-	blocksize := cipherLen - initLen
-	inputSize := b.Len()
-	// Initial ciphertext length, initlen - (inputsize-1) gives length of the unknown string.
-	unknownStringSize := initLen - (inputSize - 1)
+	blocksize, unknownStringSize := BreakSuffixOracleLength(b)
 	/*
-		The FindUnknownString function for now, because it specifically tries to
+		TODO: The FindUnknownSuffixPad function for now, because it specifically tries to
 		break the AES128ECBSuffixoracle.
 		Modify that function for generic finding padded e.g. suffix etc.
 	*/
-	fmt.Printf("Blocksize: %d \nInputSize: %d\nLength of unknown string: %d\n", blocksize, inputSize, unknownStringSize)
-
-	unknown := FindUnknownString(unknownStringSize, blocksize)
+	unknown := FindUnknownSuffixPad(nil, unknownStringSize, blocksize)
 	fmt.Println("Pad: ", unknown)
 }
 
 func TestBreakPrefixOracle(t *testing.T) {
-	prefixSize := BreakPrefixOracle(16)
+	// Break prefix; find prefix length
+	prefixSize := BreakPrefixOracleLength(16)
 	fmt.Println("Size of prefix: ", prefixSize)
+	// Constant pad of input by the prefix length; find suffix length
+	b := bytes.Buffer{}
+	prefixBytes := []byte(strings.Repeat("A", prefixSize))
+	b.Write(prefixBytes)
+	blocksize, suffixSize := BreakSuffixOracleLength(b)
+	// find target: suffix pad
+	unknown := FindUnknownSuffixPad(prefixBytes, suffixSize, blocksize)
+	fmt.Println(unknown)
+	if !strings.Contains(unknown, "Rollin' in my 5.0") {
+		t.Errorf("Wrong pad. Pad contains: ")
+	}
 }
 
 func TestPriv(t *testing.T) {
