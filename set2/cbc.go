@@ -2,34 +2,55 @@ package set2
 
 import (
 	"crypto/aes"
-	"fmt"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
 
 // CbcProp struct has the encryption properties
 type CbcProp struct {
-	IV  []byte
-	key []byte
+	Message    []byte
+	CipherText []byte
+	IV         []byte
+	Key        []byte
 }
 
-// Cbc implements AES in ECB mode.
-func (c CbcProp) Cbc(cbcBytes []byte) ([]byte, error) {
-	ciph, err := aes.NewCipher(c.key)
+// CbcEncrypt function handles encryption of a plaintext in CBC mode
+func (c *CbcProp) CbcEncrypt() []byte {
+	ciph, err := aes.NewCipher(c.Key)
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
-	paddedBytes := set1.PKCSPadding(cbcBytes, aes.BlockSize)
+	paddedBytes := set1.PKCSPadding(c.Message, aes.BlockSize)
 
 	cipher := make([]byte, len(paddedBytes))
 	ciphBlock := c.IV
 
 	for idx := 0; idx < len(paddedBytes); idx += aes.BlockSize {
 		lim := idx + aes.BlockSize
-
-		ciphBlock = set1.Xor(paddedBytes[idx:lim], ciphBlock)
-		ciph.Encrypt(cipher[idx:lim], ciphBlock)
+		set1.Xor(paddedBytes[idx:lim], ciphBlock)
+		ciph.Encrypt(cipher[idx:lim], paddedBytes[idx:lim])
+		ciphBlock = cipher[idx:lim]
 	}
-	finalCipher := set1.PKCSUnpadding(cipher)
-	return finalCipher, nil
+	return cipher
+}
+
+// CbcDecrypt function handles decryption of a plaintext in CBC mode
+func (c *CbcProp) CbcDecrypt() []byte {
+	ciph, err := aes.NewCipher(c.Key)
+	if err != nil {
+		panic(err)
+	}
+	cipherContent := c.CipherText
+	plainBytes := make([]byte, len(c.CipherText))
+	ciphBlock := c.IV
+
+	for idx := 0; idx < len(plainBytes); idx += aes.BlockSize {
+		lim := idx + aes.BlockSize
+
+		ciph.Decrypt(plainBytes[idx:lim], cipherContent[idx:lim])
+		set1.Xor(plainBytes[idx:lim], ciphBlock)
+		ciphBlock = cipherContent[idx:lim]
+	}
+	plainBytes = set1.PKCSUnpadding(plainBytes)
+	return plainBytes
 }
