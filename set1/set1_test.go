@@ -84,9 +84,39 @@ func TestPKCSPadding(t *testing.T) {
 }
 
 func TestPKCSUnpadding(t *testing.T) {
+	// test success case
 	paddedBytes := []byte("YELLOW SUBMARINE\x04\x04\x04\x04")
 	unpaddedText := string(PKCSUnpadding(paddedBytes))
-	if string(unpaddedText) != "YELLOW SUBMARINE" {
-		t.Errorf("PKCSUnpadding(). Want: %s. Expected: YELLOW SUBMARINE", unpaddedText)
+	expected := "YELLOW SUBMARINE"
+	if string(unpaddedText) != expected {
+		t.Errorf("PKCSUnpadding(). Want: %s. Expected: %s", unpaddedText, expected)
+	}
+	// test unpadded string
+	paddedBytes = []byte("ICE ICE BABY'\x01\x02\x03\x04")
+	unpaddedText = string(PKCSUnpadding(paddedBytes))
+	expected = "ICE ICE BABY'\x01\x02\x03\x04"
+	if string(unpaddedText) != expected {
+		t.Errorf("PKCSUnpadding(). Want: %s. Expected: %s", unpaddedText, expected)
+	}
+}
+
+func TestPKCSValidation(t *testing.T) {
+	// success test
+	testText := []byte("ICE ICE BABY\x04\x04\x04\x04")
+	isValid := PKCSValidation(testText)
+	if !isValid {
+		t.Errorf("PKCSValidation(). Got:%v. Expected: true", isValid)
+	}
+	// test for wrong pad value
+	testText = []byte("ICE ICE BABY\x05\x05\x05\x05")
+	isValid = PKCSValidation(testText)
+	if isValid {
+		t.Errorf("PKCSValidation(). Got:%v. Expected: false", !isValid)
+	}
+	// test for wrong sequence
+	testText = []byte("ICE ICE BABY\x01\x02\x03\x04")
+	isValid = PKCSValidation(testText)
+	if isValid {
+		t.Errorf("PKCSValidation(). Got:%v. Expected: false", !isValid)
 	}
 }
