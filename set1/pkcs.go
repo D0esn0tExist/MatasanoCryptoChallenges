@@ -19,10 +19,26 @@ func PKCSPadding(input []byte, toLen int) []byte {
 
 // PKCSUnpadding removes padding on the provided byte array.
 func PKCSUnpadding(input []byte) []byte {
-	lenInput := len(input)
-	padLen := int(input[lenInput-1])
-	if padLen < 0 || lenInput < padLen {
-		return input
+	isValid := PKCSValidation(input)
+	if !isValid {
+		return input // if not padded, just return original byte array.
 	}
-	return input[:lenInput-padLen]
+	padByte := int(input[len(input)-1])
+	return input[:len(input)-padByte]
+}
+
+// PKCSValidation function checks if a plaintext has PKCS padding.
+func PKCSValidation(input []byte) (isPadded bool) {
+	isPadded = false
+	validationByte := int(input[len(input)-1])
+	if validationByte > len(input) {
+		return
+	}
+	for i := 0; i < validationByte; i++ {
+		if int(input[len(input)-1-i]) != validationByte {
+			return
+		}
+	}
+	isPadded = true
+	return
 }
