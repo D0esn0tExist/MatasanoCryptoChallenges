@@ -10,19 +10,58 @@ import (
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
 
-func TestCbc(t *testing.T) {
-	cbcCiph := set1.LoadFile("cbcCiph.txt")
-	cbcBytes := make([]byte, len(cbcCiph))
-	base64.RawStdEncoding.Decode(cbcBytes, cbcCiph)
-	byteText := []byte("YELLOW SUBMARINE")
+func TestCbcEncrypt(t *testing.T) {
+	encryptionKey := []byte("YELLOW SUBMARINE")
 	iv := make([]byte, 16)
-	c := CbcProp{iv, byteText}
-	out, _ := c.Cbc(cbcBytes)
+	c := CbcProp{
+		Key: encryptionKey,
+		IV:  iv}
 
-	outText := base64.StdEncoding.EncodeToString(out)
-	fmt.Println(outText)
+	// Test text encrytion
+	messageBytes := []byte("Hello World!")
+	c.Message = messageBytes
+	encryptedBytes := c.CbcEncrypt()
+	encryptedContent := base64.StdEncoding.EncodeToString(encryptedBytes)
+	expected := "CznrvEzPURGVlXa5MgPj3g=="
+	if encryptedContent != expected {
+		t.Errorf("CbcEncrypt(). Got: %v Expected: %v", encryptedContent, expected)
+	}
 }
 
+func TestCbcDecrypt(t *testing.T) {
+	decryptionKey := []byte("YELLOW SUBMARINE")
+	iv := make([]byte, 16)
+	c := CbcProp{
+		Key: decryptionKey,
+		IV:  iv}
+	// Test decryption of file.
+	encryptedContent := set1.LoadFile("testCBCDec.txt")
+	encryptedBytes := make([]byte, len(encryptedContent))
+	_, err := base64.RawStdEncoding.Decode(encryptedBytes, encryptedContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.CipherText = encryptedBytes
+	decryptedBytes := c.CbcDecrypt()
+	decryptedContent := string(decryptedBytes)
+	if !strings.Contains(decryptedContent, "ringin' the bell") {
+		t.Errorf("CbcDecrypt() on file failed. Expected decrypted content to contain: ringin' the bell")
+	}
+
+	// Test text decrytion
+	encryptedString := "CznrvEzPURGVlXa5MgPj3g=="
+	encryptedBytes, err = base64.StdEncoding.DecodeString(encryptedString)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.CipherText = encryptedBytes
+	decryptedBytes = c.CbcDecrypt()
+	decryptedContent = string(decryptedBytes)
+	expected := "Hello World!"
+	if decryptedContent != expected {
+		t.Errorf("CbcDecrypt(). Got: %v Expected: %v", decryptedContent, expected)
+	}
+}
 func TestEnryptionOracle(t *testing.T) {
 	cipher := EncryptionOracle("Hello World!")
 	fmt.Println(cipher)
