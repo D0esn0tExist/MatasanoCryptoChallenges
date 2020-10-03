@@ -23,6 +23,6 @@ func RepeatingXor(message, key string) string {
 		}
 	}
 
-	cipher := Xor(msgBytes, buf.Bytes())
-	return hex.EncodeToString(cipher)
+	Xor(msgBytes, buf.Bytes())
+	return hex.EncodeToString(msgBytes)
 }

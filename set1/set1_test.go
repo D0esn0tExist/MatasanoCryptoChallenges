@@ -18,7 +18,8 @@ func TestSingleXor(t *testing.T) {
 func TestXor(t *testing.T) {
 	input, _ := hex.DecodeString("1c0111001f010100061a024b53535009181c")
 	xoree, _ := hex.DecodeString("686974207468652062756c6c277320657965")
-	xor := hex.EncodeToString(Xor(input, xoree))
+	Xor(input, xoree)
+	xor := hex.EncodeToString(input)
 	if xor != "746865206b696420646f6e277420706c6179" {
 		t.Errorf("Xor(input,xoree) = %s. Want: 746865206b696420646f6e277420706c6179", xor)
 	}
