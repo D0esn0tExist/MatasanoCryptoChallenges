@@ -12,7 +12,7 @@ type Ciph struct {
 	Message    []byte
 }
 
-// Aesencrypt function handles enc and decryption of a plaintext in ECB mode
+// Aesencrypt function handles encryption of a plaintext in ECB mode
 func (c *Ciph) Aesencrypt() []byte {
 	ciph, err := aes.NewCipher(c.CipherKey)
 	if err != nil {

@@ -1,7 +1,6 @@
 package set2
 
 import (
-	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -40,12 +39,12 @@ func EncryptionOracle(input string) string {
 	if err != nil {
 		panic(err)
 	}
-	cbc := CbcProp{IV: iv, key: []byte(encKey)}
-	cipher, err := cbc.Cbc(set1.PKCSPadding([]byte(theInput), 16))
-	if err != nil {
-		fmt.Println("Error on cbc", err)
-		panic(err)
+	cbc := CbcProp{
+		IV:      iv,
+		Key:     []byte(encKey),
+		Message: set1.PKCSPadding([]byte(theInput), 16),
 	}
+	cipher := cbc.CbcEncrypt()
 	return string(cipher)
 }
 
