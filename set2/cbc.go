@@ -54,3 +54,22 @@ func (c *CbcProp) CbcDecrypt() []byte {
 	plainBytes = set1.PKCSUnpadding(plainBytes)
 	return plainBytes
 }
+
+// BitFlip attempts to do a byte flip attack on CBC ciphertext.
+// The function takes in the ciphertext to modify, the original
+// plaintext and a list of positions to modify and another list
+// of the corresponding bytes to insert at the positions.
+// NOTE: Match by index is important for these two lists.
+func BitFlip(ciphertext []byte, originalPlain []byte, positionsToModify []int, bytesToInsert []byte) {
+	if len(positionsToModify) != len(bytesToInsert) {
+		panic("lengths must match")
+	}
+	for i, position := range positionsToModify {
+		modifPosition := 0
+		// TODO: If the position to be changed is in the first set, modify IV. Add this functionality.
+		if position > 16 {
+			modifPosition = position - 16
+		}
+		ciphertext[modifPosition] = ciphertext[modifPosition] ^ originalPlain[position] ^ bytesToInsert[i]
+	}
+}

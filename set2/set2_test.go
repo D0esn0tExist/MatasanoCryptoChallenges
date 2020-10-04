@@ -2,6 +2,7 @@ package set2
 
 import (
 	"bytes"
+	"crypto/aes"
 	"encoding/base64"
 	"fmt"
 	"strings"
@@ -9,6 +10,36 @@ import (
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
+
+func TestPad(t *testing.T) {
+	testInput := []byte("World")
+	testPrefix := "Hello "
+	testSuffix := " FROM ME"
+	prefExpect := "Hello World"
+	suffixExpect := "Hello World FROM ME"
+	// test prepend prefix
+	result := PrependPrefix(testPrefix, testInput)
+	if string(result) != prefExpect {
+		t.Errorf("PrependPrefix() fail. Got: %v Expected: %v", string(result), prefExpect)
+	}
+	// test append suffix
+	result = AppendSuffix(testSuffix, result)
+	if string(result) != suffixExpect {
+		t.Errorf("AppendSuffix() fail. Got %v Expected %v", string(result), suffixExpect)
+	}
+	// test sanitization
+	// sanitizeRule
+	removeSpecial := func(text string) string {
+		r := strings.NewReplacer("=", "", ";", "")
+		r.Replace(text)
+		return text
+	}
+	testPrefix = "Hel=lo; "
+	padded := PadInput(removeSpecial, testPrefix, testSuffix, "World")
+	if padded != suffixExpect {
+		t.Errorf("PadInput() fail. Got: %v Expected %v", padded, suffixExpect)
+	}
+}
 
 func TestCbcEncrypt(t *testing.T) {
 	encryptionKey := []byte("YELLOW SUBMARINE")
@@ -123,4 +154,70 @@ func TestPriv(t *testing.T) {
 		t.Errorf("Excepted admin. Found %s", profile["role"])
 	}
 
+}
+
+func TestCbcBitFlip(t *testing.T) {
+	// random AES key
+	encKey := KeyGen(16)
+	// pad input and sanitize. Allign such that all the input is in one set
+	input := "adminadminatrue"
+	prefix := "comment1=cooking%20MCs;userdata="
+	suffix := ";comment2=%20like%20a%20pound%20of%20bacon"
+
+	// sanitizeRule
+	removeSpecial := func(text string) string {
+		text = strings.Replace(strings.Replace(text, "=", "", -1), ";", "", -1)
+		return text
+	}
+
+	// pad and sanitize input
+	paddedYsanitizedInput := PadInput(removeSpecial, prefix, suffix, input)
+	// Encrypt
+	c := CbcProp{
+		Message: []byte(paddedYsanitizedInput),
+		Key:     []byte(encKey),
+		IV:      make([]byte, 16),
+	}
+	ciphertext := c.CbcEncrypt()
+	fmt.Println(ciphertext)
+
+	// identify characters to modify
+	plainSize := len(paddedYsanitizedInput)
+	for i := 0; i < plainSize/aes.BlockSize; i++ {
+		fmt.Println(paddedYsanitizedInput[i*aes.BlockSize : (i+1)*aes.BlockSize])
+	}
+	/*
+			comment1cooking%
+			20MCsuserdataadm
+			inadminatruecomm
+			ent2%20like%20a%
+			20pound%20of%20b
+
+		Attempt a byte flip. Modify:
+		* n : position 33 -> ;
+		* a : position 39 -> =
+		* c : position 44 -> ;
+	*/
+	toInsert1 := []byte(";")[0]
+	toInsert2 := []byte("=")[0]
+	positionsToModify := []int{33, 39, 44}
+	bytesToInsert := []byte{toInsert1, toInsert2, toInsert1}
+	BitFlip(ciphertext, []byte(paddedYsanitizedInput), positionsToModify, bytesToInsert)
+	fmt.Println(ciphertext)
+	var decrypted []byte
+
+	// check existence of ";admin=true;" in plaintext
+	inspectPlain := func(ciphertext []byte) bool {
+		stringToCheck := ";admin=true;"
+		exists := false
+		c.CipherText = ciphertext
+		decrypted = c.CbcDecrypt()
+		if strings.Contains(string(decrypted), stringToCheck) {
+			exists = true
+		}
+		return exists
+	}
+	if !inspectPlain(ciphertext) {
+		t.Errorf("CbcBitFlip fail. Expected plaintext to contain ;admin=true; Got: %v.", string(decrypted))
+	}
 }
