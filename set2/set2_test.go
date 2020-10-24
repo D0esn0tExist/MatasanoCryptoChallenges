@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"encoding/base64"
-	"fmt"
+	"log"
 	"strings"
 	"testing"
 
@@ -30,8 +30,7 @@ func TestPad(t *testing.T) {
 	// test sanitization
 	// sanitizeRule
 	removeSpecial := func(text string) string {
-		r := strings.NewReplacer("=", "", ";", "")
-		r.Replace(text)
+		text = strings.Replace(strings.Replace(text, "=", "", -1), ";", "", -1)
 		return text
 	}
 	testPrefix = "Hel=lo; "
@@ -86,7 +85,7 @@ func TestCbcDecrypt(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.CipherText = encryptedBytes
-	decryptedBytes = c.CbcDecrypt()
+	decryptedBytes = set1.PKCSUnpadding(c.CbcDecrypt())
 	decryptedContent = string(decryptedBytes)
 	expected := "Hello World!"
 	if decryptedContent != expected {
@@ -95,7 +94,7 @@ func TestCbcDecrypt(t *testing.T) {
 }
 func TestEnryptionOracle(t *testing.T) {
 	cipher := EncryptionOracle("Hello World!")
-	fmt.Println(cipher)
+	log.Println(cipher)
 }
 
 func TestByteAtime(t *testing.T) {
@@ -107,13 +106,13 @@ func TestByteAtime(t *testing.T) {
 		Modify that function for generic finding padded e.g. suffix etc.
 	*/
 	unknown := FindUnknownSuffixPad(nil, unknownStringSize, blocksize)
-	fmt.Println("Pad: ", unknown)
+	log.Println("Pad: ", unknown)
 }
 
 func TestBreakPrefixOracle(t *testing.T) {
 	// Break prefix; find prefix length
 	prefixSize := BreakPrefixOracleLength(16)
-	fmt.Println("Size of prefix: ", prefixSize)
+	log.Println("Size of prefix: ", prefixSize)
 	// Constant pad of input by the prefix length; find suffix length
 	b := bytes.Buffer{}
 	prefixBytes := []byte(strings.Repeat("A", prefixSize))
@@ -121,7 +120,7 @@ func TestBreakPrefixOracle(t *testing.T) {
 	blocksize, suffixSize := BreakSuffixOracleLength(b)
 	// find target: suffix pad
 	unknown := FindUnknownSuffixPad(prefixBytes, suffixSize, blocksize)
-	fmt.Println(unknown)
+	log.Println(unknown)
 	if !strings.Contains(unknown, "Rollin' in my 5.0") {
 		t.Errorf("Wrong pad. Pad contains: ")
 	}
@@ -179,12 +178,12 @@ func TestCbcBitFlip(t *testing.T) {
 		IV:      make([]byte, 16),
 	}
 	ciphertext := c.CbcEncrypt()
-	fmt.Println(ciphertext)
+	log.Println(ciphertext)
 
 	// identify characters to modify
 	plainSize := len(paddedYsanitizedInput)
 	for i := 0; i < plainSize/aes.BlockSize; i++ {
-		fmt.Println(paddedYsanitizedInput[i*aes.BlockSize : (i+1)*aes.BlockSize])
+		log.Println(paddedYsanitizedInput[i*aes.BlockSize : (i+1)*aes.BlockSize])
 	}
 	/*
 			comment1cooking%
@@ -203,7 +202,7 @@ func TestCbcBitFlip(t *testing.T) {
 	positionsToModify := []int{33, 39, 44}
 	bytesToInsert := []byte{toInsert1, toInsert2, toInsert1}
 	BitFlip(ciphertext, []byte(paddedYsanitizedInput), positionsToModify, bytesToInsert)
-	fmt.Println(ciphertext)
+	log.Println(ciphertext)
 	var decrypted []byte
 
 	// check existence of ";admin=true;" in plaintext

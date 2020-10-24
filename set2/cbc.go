@@ -2,6 +2,7 @@ package set2
 
 import (
 	"crypto/aes"
+	"log"
 
 	"github.com/matasano/MatasanoCryptoChallenges/set1"
 )
@@ -51,7 +52,11 @@ func (c *CbcProp) CbcDecrypt() []byte {
 		set1.Xor(plainBytes[idx:lim], ciphBlock)
 		ciphBlock = cipherContent[idx:lim]
 	}
-	plainBytes = set1.PKCSUnpadding(plainBytes)
+	isPadded := set1.PKCSValidation(plainBytes)
+	if isPadded {
+		log.Printf("string is padded")
+	}
+	// plainBytes = set1.PKCSUnpadding(plainBytes)
 	return plainBytes
 }
 

@@ -1,19 +1,20 @@
 package set1
 
+import "log"
+
 // PKCSPadding accounts for irregularly-sized messages is by padding, creating a plaintext that is an even multiple of the blocksize.
 func PKCSPadding(input []byte, toLen int) []byte {
 	diff := len(input) % toLen
-	if diff == 0 {
-		return input
+	pad := 0
+	if diff > 0 {
+		pad = toLen - diff
 	}
-	pad := toLen - diff
 	paddedText := make([]byte, len(input)+pad)
-
 	n := copy(paddedText, input)
 	for i := 0; i < pad; i++ {
 		paddedText[n+i] = byte(pad)
 	}
-
+	log.Printf("Pad length: %v", pad)
 	return paddedText
 }
 
@@ -31,7 +32,7 @@ func PKCSUnpadding(input []byte) []byte {
 func PKCSValidation(input []byte) (isPadded bool) {
 	isPadded = false
 	validationByte := int(input[len(input)-1])
-	if validationByte > len(input) {
+	if validationByte > len(input) || validationByte == 0 {
 		return
 	}
 	for i := 0; i < validationByte; i++ {

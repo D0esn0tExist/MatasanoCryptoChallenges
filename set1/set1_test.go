@@ -82,6 +82,13 @@ func TestPKCSPadding(t *testing.T) {
 	if string(paddedString) != "YELLOW SUBMARINE\x04\x04\x04\x04" {
 		t.Errorf("PKCSPadding(). Want: %s. Expected: YELLOW SUBMARINE\x04\x04\x04\x04", string(paddedString))
 	}
+	// test complete string
+	testBytes := []byte("ICE ICE ICE BABY")
+	paddedString = PKCSPadding(testBytes, 16)
+	expected := "ICE ICE ICE BABY"
+	if string(paddedString) != expected {
+		t.Errorf("PKCSPadding(). Got: %s. Expected: %s", paddedString, expected)
+	}
 }
 
 func TestPKCSUnpadding(t *testing.T) {
@@ -96,9 +103,17 @@ func TestPKCSUnpadding(t *testing.T) {
 	paddedBytes = []byte("ICE ICE BABY'\x01\x02\x03\x04")
 	unpaddedText = string(PKCSUnpadding(paddedBytes))
 	expected = "ICE ICE BABY'\x01\x02\x03\x04"
-	if string(unpaddedText) != expected {
+	if unpaddedText != expected {
 		t.Errorf("PKCSUnpadding(). Want: %s. Expected: %s", unpaddedText, expected)
 	}
+	// test complete string
+	testBytes := []byte("ICE ICE ICE BABY")
+	unpaddedText = string(PKCSUnpadding(testBytes))
+	expected = "ICE ICE ICE BABY"
+	if unpaddedText != expected {
+		t.Errorf("PKCSUnpadding(). Want: %s. Expected: %s", unpaddedText, expected)
+	}
+
 }
 
 func TestPKCSValidation(t *testing.T) {
