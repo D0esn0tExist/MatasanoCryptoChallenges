@@ -52,8 +52,11 @@ func TestCtrMode(t *testing.T) {
 		return nonce
 	}
 
+	expectedMessage := "Yo, VIP Let's kick it Ice, Ice, baby Ice, Ice, baby "
 	decryptedBytes := CtrMode(keyBytes, testCipherBytes, nonceRule)
-	logger.Printf("Decrypted message: %v", string(decryptedBytes))
+	if string(decryptedBytes) != expectedMessage {
+		t.Errorf("Decrytion fail. Expected: %v. Got: %v", expectedMessage, string(decryptedBytes))
+	}
 
 	encryptedBytes := CtrMode(keyBytes, decryptedBytes, nonceRule)
 	testCipherResult := base64.StdEncoding.EncodeToString(encryptedBytes)
